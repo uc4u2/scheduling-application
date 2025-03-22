@@ -23,19 +23,16 @@ def create_app():
     mail.init_app(app)
     jwt.init_app(app)
 
-    # ✅ CORS with correct frontend origin
-    CORS(app, 
+    # CORS setup to allow only your frontend
+    CORS(app,
          resources={r"/*": {"origins": [app.config["FRONTEND_URL"]]}},
-         supports_credentials=True,
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-         allow_headers=["Content-Type", "Authorization"]
-    )
+         supports_credentials=True)
 
-    # Register routes
+    # Register your routes
     from app.routes import main
     app.register_blueprint(main)
 
-    # ✅ TEMP: Route to download zipped backend
+    # Optional: Add a route to download backend as ZIP (useful only for dev/recovery)
     @app.route("/download-backend")
     def download_backend():
         zip_path = "/tmp/backend.zip"
