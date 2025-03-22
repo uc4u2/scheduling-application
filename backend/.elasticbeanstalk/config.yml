@@ -1,0 +1,25 @@
+branch-defaults:
+  default:
+    environment: my-flask-env
+    group_suffix: null
+environment-defaults:
+  my-backend-env:
+    branch: null
+    repository: null
+  my-flask-env:
+    branch: null
+    repository: null
+global:
+  application_name: my-flask-app
+  branch: null
+  default_ec2_keyname: null
+  default_platform: Python 3.8 running on 64bit Amazon Linux 2
+  default_region: us-west-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  repository: null
+  sc: null
+  workspace_type: Application

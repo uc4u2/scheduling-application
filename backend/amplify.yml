@@ -1,0 +1,30 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd frontend && npm install
+    build:
+      commands:
+        - cd frontend && npm run build
+  artifacts:
+    baseDirectory: frontend/build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - frontend/node_modules/**/*
+  
+backend:
+  phases:
+    preBuild:
+      commands:
+        - cd backend && pip install -r requirements.txt
+        - pip install waitress  # Ensure Waitress is installed
+    build:
+      commands:
+        - cd backend && waitress-serve --listen=0.0.0.0:$PORT run:app
+  artifacts:
+    baseDirectory: backend
+    files:
+      - '**/*'
