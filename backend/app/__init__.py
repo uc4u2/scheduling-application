@@ -1,6 +1,5 @@
 import os
-import shutil
-from flask import Flask, send_file
+from flask import Flask, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -23,21 +22,28 @@ def create_app():
     mail.init_app(app)
     jwt.init_app(app)
 
-    # CORS setup to allow only your frontend
+    # --- CORS CONFIGURATION ---
     CORS(app,
-         resources={r"/*": {"origins": [app.config["FRONTEND_URL"]]}},
-         supports_credentials=True)
+         resources={r"/*": {"origins": [app.config.get("FRONTEND_URL", "*")]}},
+         supports_credentials=True,
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
+    )
 
-    # Register your routes
+    # --- HANDLE OPTIONS Preflight Explicitly (just in case) ---
+    @app.after_request
+    def after_request(response):
+        origin = request.headers.get("Origin")
+        if origin and origin == app.config.get("FRONTEND_URL"):
+            response.headers.add("Access-Control-Allow-Origin", origin)
+        else:
+            response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE")
+        return response
+
+    # --- Register your routes ---
     from app.routes import main
     app.register_blueprint(main)
-
-    # Optional: Add a route to download backend as ZIP (useful only for dev/recovery)
-    @app.route("/download-backend")
-    def download_backend():
-        zip_path = "/tmp/backend.zip"
-        source_dir = "/opt/render/project/src"
-        shutil.make_archive(zip_path.replace(".zip", ""), "zip", source_dir)
-        return send_file(zip_path, as_attachment=True)
 
     return app
